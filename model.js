@@ -12,9 +12,10 @@ const userSchema = new mongoose.Schema({
 const userProfileSchema = new mongoose.Schema({
   user_id: mongoose.Schema.Types.ObjectId,
   dob: Date,
+  email: String,
   mobile_no: Number,
 });
 
-const User = mongoose.model("User", userSchema);
-const UserProfile = mongoose.model("UserProfile", userProfileSchema);
-module.exports = { User, UserProfile };
+const UserModel = mongoose.model("UserModel", userSchema);
+const UserProfileModel = mongoose.model("UserProfileModel", userProfileSchema);
+module.exports = { UserModel, UserProfileModel };
