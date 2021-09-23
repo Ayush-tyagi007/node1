@@ -65,36 +65,43 @@ const createUserProfile = (users) =>
       { dob: new Date("1995-06-27"), mobile_no: 4 },
       { dob: new Date("2001-06-24"), mobile_no: 5 },
     ];
-    let avgAge = 0;
+    
     users.forEach((user, userKey) => {
       console.log(`User ${userKey + 1}`, user._id);
       userProfileData.map((profile, profileKey) => {
         if (userKey == profileKey) {
           profile["user_id"] = user._id;
-          let age = getAge(profile.dob);
-          profile["age"] = age;
-          avgAge = avgAge + age;
+         
         }
         return profile;
       });
+      
     });
+    let avgAge;
+    
+    const profileuser= await UserProfileModel.find({})
+  profileuser.forEach((profil,key)=>{
+   avgAge=avgAge+getAge(profileuser[key].dob)
+  },
+  console.log(avgAge)
+  )
     let usersProfile = await UserProfileModel.create(userProfileData);
-    console.log(`the average age of users is ${avgAge / usersProfile.length}`);
     resolve(userProfileData);
   });
 const deleteUserProfile = () =>
   new Promise(async (resolve, reject) => {
-    years25date = new Date(
+    const years25date = new Date(
       new Date().setFullYear(new Date().getFullYear() - 25)
     ).toISOString();
     let profiles25greater = await UserProfileModel.find(
       { dob: { $lte: years25date } },
       { user_id: 1 }
     );
-    let userIds = profiles25greater.map((profile) => profile.user_id);
-    console.log(`user_id of users to be deleted ${userIds}`);
-    await UserModel.deleteMany({ _id: { $in: userIds } });
-    await UserProfileModel.deleteMany({ user_id: { $in: userIds } });
+    console.log(profiles25greater);
+    let userIds = profiles25greater.map((profile) => profile._id);
+    console.log( userIds);
+    await UserModel.deleteMany({ user_id: { $in: userIds } });
+    await UserProfileModel.deleteMany({ _id: { $in: userIds } });
     resolve();
   });
 async function start(userData) {
