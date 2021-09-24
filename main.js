@@ -65,27 +65,17 @@ const createUserProfile = (users) =>
       { dob: new Date("1995-06-27"), mobile_no: 4 },
       { dob: new Date("2001-06-24"), mobile_no: 5 },
     ];
-    
+
     users.forEach((user, userKey) => {
       console.log(`User ${userKey + 1}`, user._id);
       userProfileData.map((profile, profileKey) => {
         if (userKey == profileKey) {
           profile["user_id"] = user._id;
-         
         }
         return profile;
       });
-      
     });
-    let avgAge;
-    
-    const profileuser= await UserProfileModel.find({})
-  profileuser.forEach((profil,key)=>{
-   avgAge=avgAge+getAge(profileuser[key].dob)
-  },
-  console.log(avgAge)
-  )
-    let usersProfile = await UserProfileModel.create(userProfileData);
+    await UserProfileModel.create(userProfileData);
     resolve(userProfileData);
   });
 const deleteUserProfile = () =>
@@ -98,20 +88,29 @@ const deleteUserProfile = () =>
       { user_id: 1 }
     );
     console.log(profiles25greater);
-    let userIds = profiles25greater.map((profile) => profile._id);
-    console.log( userIds);
-    await UserModel.deleteMany({ user_id: { $in: userIds } });
-    await UserProfileModel.deleteMany({ _id: { $in: userIds } });
+    let userIds = profiles25greater.map((profile) => profile.user_id);
+    console.log(userIds);
+    await UserModel.deleteMany({ _id: { $in: userIds } });
+    await UserProfileModel.deleteMany({ user_id: { $in: userIds } });
     resolve();
   });
+async function getAverageAge() {
+  let avgAge = 0;
+
+  const profileuser = await UserProfileModel.find({});
+  profileuser.forEach((profil, key) => {
+    avgAge = avgAge + getAge(profil.dob);
+  });
+  console.log({ avgAge: avgAge / profileuser.length });
+}
 async function start(userData) {
   try {
     await connectDb();
     const users = await UserModel.create(userData);
     let data = await createUserProfile(users);
+    await getAverageAge();
     await deleteUserProfile();
     console.log("completed successfully");
-    process.exit();
   } catch (err) {
     console.log(err);
   }
